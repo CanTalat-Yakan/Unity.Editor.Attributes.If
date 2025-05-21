@@ -30,13 +30,14 @@ namespace UnityEssentials
 
         public static void OnProcessProperty(SerializedProperty property)
         {
-            if (!InspectorHookUtilities.TryGetAttribute<IfAttribute>(property, out var attribute))
-                return;
-
-            var source = InspectorHookUtilities.GetPropertyValue(InspectorHook.SerializedObject.FindProperty(attribute.FieldName));
-            if (!source.Equals(attribute.FieldValue))
-                InspectorHook.MarkPropertyAsHandled(property.propertyPath);
+            if (InspectorHookUtilities.TryGetAttributes<IfAttribute>(property, out var attributes))
+                foreach (var attribute in attributes)
+                    if (!GetSource(attribute.FieldName).Equals(attribute.FieldValue))
+                        InspectorHook.MarkPropertyAsHandled(property.propertyPath);
         }
+
+        private static object GetSource(string propertyPath) =>
+            InspectorHookUtilities.GetPropertyValue(InspectorHook.SerializedObject.FindProperty(propertyPath));
     }
 }
 #endif
