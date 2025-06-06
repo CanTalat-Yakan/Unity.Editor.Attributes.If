@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 
 namespace UnityEssentials
@@ -21,6 +22,7 @@ namespace UnityEssentials
         {
             InspectorHook.AddInitialization(OnInitialization);
             InspectorHook.AddProcessProperty(OnProcessProperty, 1001);
+            InspectorHook.AddProcessMethod(OnProcessMethod, 1001);
         }
 
         /// <summary>
@@ -51,23 +53,39 @@ namespace UnityEssentials
         /// cref="IfAttribute"/>, the property is marked as handled if the value of the specified    source field does
         /// not match the expected value. - For <see cref="IfNotAttribute"/>, the property is marked as handled if the
         /// value of the specified    source field matches the expected value.  This method relies on <see
-        /// cref="InspectorHookUtilities.TryGetAttributes{T}"/> to retrieve the  attributes and <see cref="GetSource"/>
+        /// cref="InspectorHookUtilities.TryGetAttributes{T}"/> to retrieve the  attributes and <see cref="GetSourceValue"/>
         /// to resolve the source field values.</remarks>
         /// <param name="property">The <see cref="SerializedProperty"/> to process. This parameter cannot be <see langword="null"/>.</param>
         public static void OnProcessProperty(SerializedProperty property)
         {
             if (InspectorHookUtilities.TryGetAttributes<IfAttribute>(property, out var ifAttributes))
                 foreach (var attribute in ifAttributes)
-                    if (!GetSource(attribute.FieldName).Equals(attribute.FieldValue))
-                        InspectorHook.MarkPropertyAsHandled(property.propertyPath);
+                    if (!GetSourceValue(attribute.FieldName)?.Equals(attribute.FieldValue) ?? false)
+                        InspectorHook.MarkPropertyAndChildrenAsHandled(property);
 
             if (InspectorHookUtilities.TryGetAttributes<IfNotAttribute>(property, out var ifNotAttributes))
                 foreach (var attribute in ifNotAttributes)
-                    if (GetSource(attribute.FieldName).Equals(attribute.FieldValue))
-                        InspectorHook.MarkPropertyAsHandled(property.propertyPath);
+                    if (GetSourceValue(attribute.FieldName)?.Equals(attribute.FieldValue) ?? false)
+                        InspectorHook.MarkPropertyAndChildrenAsHandled(property);
         }
 
-        private static object GetSource(string propertyPath) =>
+        private static void OnProcessMethod(MethodInfo method)
+        {
+            if (InspectorHook.IsMethodHandled(method))
+                return;
+
+            if (InspectorHookUtilities.TryGetAttributes<IfAttribute>(method, out var ifAttributes))
+                foreach (var attribute in ifAttributes)
+                    if (!GetSourceValue(attribute.FieldName)?.Equals(attribute.FieldValue) ?? false)
+                        InspectorHook.MarkPropertyAsHandled(method);
+
+            if (InspectorHookUtilities.TryGetAttributes<IfNotAttribute>(method, out var ifNotAttributes))
+                foreach (var attribute in ifNotAttributes)
+                    if (GetSourceValue(attribute.FieldName)?.Equals(attribute.FieldValue) ?? false)
+                        InspectorHook.MarkPropertyAsHandled(method);
+        }
+
+        private static object GetSourceValue(string propertyPath) =>
             InspectorHookUtilities.GetPropertyValue(InspectorHook.SerializedObject.FindProperty(propertyPath));
     }
 }
