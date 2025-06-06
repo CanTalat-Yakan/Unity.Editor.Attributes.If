@@ -60,13 +60,15 @@ namespace UnityEssentials
         {
             if (InspectorHookUtilities.TryGetAttributes<IfAttribute>(property, out var ifAttributes))
                 foreach (var attribute in ifAttributes)
-                    if (!GetSourceValue(attribute.FieldName)?.Equals(attribute.FieldValue) ?? false)
-                        InspectorHook.MarkPropertyAndChildrenAsHandled(property);
+                    foreach (var fieldValue in attribute.FieldValues)
+                        if (!GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
+                            InspectorHook.MarkPropertyAndChildrenAsHandled(property);
 
             if (InspectorHookUtilities.TryGetAttributes<IfNotAttribute>(property, out var ifNotAttributes))
                 foreach (var attribute in ifNotAttributes)
-                    if (GetSourceValue(attribute.FieldName)?.Equals(attribute.FieldValue) ?? false)
-                        InspectorHook.MarkPropertyAndChildrenAsHandled(property);
+                    foreach (var fieldValue in attribute.FieldValues)
+                        if (GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
+                            InspectorHook.MarkPropertyAndChildrenAsHandled(property);
         }
 
         private static void OnProcessMethod(MethodInfo method)
@@ -76,13 +78,15 @@ namespace UnityEssentials
 
             if (InspectorHookUtilities.TryGetAttributes<IfAttribute>(method, out var ifAttributes))
                 foreach (var attribute in ifAttributes)
-                    if (!GetSourceValue(attribute.FieldName)?.Equals(attribute.FieldValue) ?? false)
-                        InspectorHook.MarkPropertyAsHandled(method);
+                    foreach (var fieldValue in attribute.FieldValues)
+                        if (!GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
+                            InspectorHook.MarkPropertyAsHandled(method);
 
             if (InspectorHookUtilities.TryGetAttributes<IfNotAttribute>(method, out var ifNotAttributes))
                 foreach (var attribute in ifNotAttributes)
-                    if (GetSourceValue(attribute.FieldName)?.Equals(attribute.FieldValue) ?? false)
-                        InspectorHook.MarkPropertyAsHandled(method);
+                    foreach (var fieldValue in attribute.FieldValues)
+                        if (GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
+                            InspectorHook.MarkPropertyAsHandled(method);
         }
 
         private static object GetSourceValue(string propertyPath) =>

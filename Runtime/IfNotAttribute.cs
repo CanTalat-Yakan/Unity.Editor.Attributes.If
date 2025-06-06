@@ -5,12 +5,12 @@ namespace UnityEssentials
     public class IfNotAttribute : Attribute
     {
         public readonly string FieldName;
-        public readonly object FieldValue;
+        public readonly object[] FieldValues;
 
-        public IfNotAttribute(string fieldName, object fieldValue)
+        public IfNotAttribute(string fieldName, params object[] fieldValues)
         {
             FieldName = fieldName;
-            FieldValue = fieldValue;
+            FieldValues = fieldValues;
         }
     }
 }
