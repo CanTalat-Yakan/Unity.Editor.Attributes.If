@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 namespace UnityEssentials
 {
@@ -62,13 +63,29 @@ namespace UnityEssentials
                 foreach (var attribute in ifAttributes)
                     foreach (var fieldValue in attribute.FieldValues)
                         if (!GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
-                            InspectorHook.MarkPropertyAndChildrenAsHandled(property);
+                            switch (attribute.Visibility)
+                            {
+                                case Visibility.Hide:
+                                    InspectorHook.MarkPropertyAndChildrenAsHandled(property);
+                                    break;
+                                case Visibility.Disable:
+                                    InspectorHook.MarkPropertyAndChildrenDisabled(property);
+                                    break;
+                            }
 
             if (InspectorHookUtilities.TryGetAttributes<IfNotAttribute>(property, out var ifNotAttributes))
                 foreach (var attribute in ifNotAttributes)
                     foreach (var fieldValue in attribute.FieldValues)
                         if (GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
-                            InspectorHook.MarkPropertyAndChildrenAsHandled(property);
+                            switch (attribute.Visibility)
+                            {
+                                case Visibility.Hide:
+                                    InspectorHook.MarkPropertyAndChildrenAsHandled(property);
+                                    break;
+                                case Visibility.Disable:
+                                    InspectorHook.MarkPropertyAndChildrenDisabled(property);
+                                    break;
+                            }
         }
 
         private static void OnProcessMethod(MethodInfo method)
@@ -80,13 +97,29 @@ namespace UnityEssentials
                 foreach (var attribute in ifAttributes)
                     foreach (var fieldValue in attribute.FieldValues)
                         if (!GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
-                            InspectorHook.MarkPropertyAsHandled(method);
+                            switch (attribute.Visibility)
+                            {
+                                case Visibility.Hide:
+                                    InspectorHook.MarkMethodAsHandled(method);
+                                    break;
+                                case Visibility.Disable:
+                                    InspectorHook.MarkMethodDisabled(method);
+                                    break;
+                            }
 
             if (InspectorHookUtilities.TryGetAttributes<IfNotAttribute>(method, out var ifNotAttributes))
                 foreach (var attribute in ifNotAttributes)
                     foreach (var fieldValue in attribute.FieldValues)
                         if (GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
-                            InspectorHook.MarkPropertyAsHandled(method);
+                            switch (attribute.Visibility)
+                            {
+                                case Visibility.Hide:
+                                    InspectorHook.MarkMethodAsHandled(method);
+                                    break;
+                                case Visibility.Disable:
+                                    InspectorHook.MarkMethodDisabled(method);
+                                    break;
+                            }
         }
 
         private static object GetSourceValue(string propertyPath) =>
