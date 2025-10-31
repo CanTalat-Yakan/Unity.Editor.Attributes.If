@@ -1,10 +1,7 @@
 {
-    "name": "UnityEssentials.IfAttribute.Editor",
+    "name": "UnityEssentials.ShowIfAttribute",
     "rootNamespace": "UnityEssentials",
-    "references": [
-        "GUID:9fb86f0caf7d8a8488cd8aeb21105895",
-        "GUID:fe1bc339c6937424988f5d56c9aae97e"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

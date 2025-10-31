@@ -10,11 +10,11 @@ namespace UnityEssentials
     /// Provides functionality for conditionally processing and monitoring serialized properties in the Unity Inspector
     /// based on custom attributes.
     /// </summary>
-    /// <remarks>The <see cref="IfDrawer"/> class integrates with the Unity Editor's property inspection
-    /// system to enable conditional handling of properties decorated with <c>IfAttribute</c> or <c>IfNotAttribute</c>.
+    /// <remarks>The <see cref="ShowIfDrawer"/> class integrates with the Unity Editor's property inspection
+    /// system to enable conditional handling of properties decorated with <c>ShowIfAttribute</c> or <c>ShowIfNotAttribute</c>.
     /// It monitors properties and determines their visibility or processing state based on the values of other
     /// properties.</remarks>
-    public static class IfDrawer
+    public static class ShowIfDrawer
     {
         private static List<SerializedProperty> s_monitoredProperties;
 
@@ -31,7 +31,7 @@ namespace UnityEssentials
         /// </summary>
         /// <remarks>This method retrieves all properties using the <see
         /// cref="InspectorHook.GetAllProperties"/> method  and filters them based on the presence of an <see
-        /// cref="IfAttribute"/> with a matching field name.  The filtered properties are stored for monitoring
+        /// cref="ShowIfAttribute"/> with a matching field name.  The filtered properties are stored for monitoring
         /// purposes.</remarks>
         public static void OnInitialization()
         {
@@ -40,7 +40,7 @@ namespace UnityEssentials
             InspectorHook.GetAllProperties(out var allProperties);
 
             foreach (var property in allProperties)
-                if (InspectorHookUtilities.TryGetAttribute<IfAttribute>(property, out var attribute))
+                if (InspectorHookUtilities.TryGetAttribute<ShowIfAttribute>(property, out var attribute))
                     if (attribute.FieldName.Equals(property.name))
                         s_monitoredProperties.Add(property);
         }
@@ -48,18 +48,18 @@ namespace UnityEssentials
         /// <summary>
         /// Processes a serialized property and conditionally marks it as handled based on custom attributes.
         /// </summary>
-        /// <remarks>This method evaluates the custom attributes <see cref="IfAttribute"/> and <see
-        /// cref="IfNotAttribute"/>  applied to the property. If the conditions specified by these attributes are met,
+        /// <remarks>This method evaluates the custom attributes <see cref="ShowIfAttribute"/> and <see
+        /// cref="ShowIfNotAttribute"/>  applied to the property. If the conditions specified by these attributes are met,
         /// the property is  marked as handled using <see cref="InspectorHook.MarkPropertyAsHandled"/>.  - For <see
-        /// cref="IfAttribute"/>, the property is marked as handled if the value of the specified    source field does
-        /// not match the expected value. - For <see cref="IfNotAttribute"/>, the property is marked as handled if the
+        /// cref="ShowIfAttribute"/>, the property is marked as handled if the value of the specified    source field does
+        /// not match the expected value. - For <see cref="ShowIfNotAttribute"/>, the property is marked as handled if the
         /// value of the specified    source field matches the expected value.  This method relies on <see
         /// cref="InspectorHookUtilities.TryGetAttributes{T}"/> to retrieve the  attributes and <see cref="GetSourceValue"/>
         /// to resolve the source field values.</remarks>
         /// <param name="property">The <see cref="SerializedProperty"/> to process. This parameter cannot be <see langword="null"/>.</param>
         public static void OnProcessProperty(SerializedProperty property)
         {
-            if (InspectorHookUtilities.TryGetAttributes<IfAttribute>(property, out var ifAttributes))
+            if (InspectorHookUtilities.TryGetAttributes<ShowIfAttribute>(property, out var ifAttributes))
                 foreach (var attribute in ifAttributes)
                     foreach (var fieldValue in attribute.FieldValues)
                         if (!GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
@@ -73,7 +73,7 @@ namespace UnityEssentials
                                     break;
                             }
 
-            if (InspectorHookUtilities.TryGetAttributes<IfNotAttribute>(property, out var ifNotAttributes))
+            if (InspectorHookUtilities.TryGetAttributes<ShowIfNotAttribute>(property, out var ifNotAttributes))
                 foreach (var attribute in ifNotAttributes)
                     foreach (var fieldValue in attribute.FieldValues)
                         if (GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
@@ -93,7 +93,7 @@ namespace UnityEssentials
             if (InspectorHook.IsMethodHandled(method))
                 return;
 
-            if (InspectorHookUtilities.TryGetAttributes<IfAttribute>(method, out var ifAttributes))
+            if (InspectorHookUtilities.TryGetAttributes<ShowIfAttribute>(method, out var ifAttributes))
                 foreach (var attribute in ifAttributes)
                     foreach (var fieldValue in attribute.FieldValues)
                         if (!GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
@@ -107,7 +107,7 @@ namespace UnityEssentials
                                     break;
                             }
 
-            if (InspectorHookUtilities.TryGetAttributes<IfNotAttribute>(method, out var ifNotAttributes))
+            if (InspectorHookUtilities.TryGetAttributes<ShowIfNotAttribute>(method, out var ifNotAttributes))
                 foreach (var attribute in ifNotAttributes)
                     foreach (var fieldValue in attribute.FieldValues)
                         if (GetSourceValue(attribute.FieldName)?.Equals(fieldValue) ?? false)
