@@ -24,6 +24,6 @@ Install the Unity Essentials entry package via Unity's Package Manager, then ins
 
 ---
 
-# If Attribute
+# Show If Attribute
 
 > Quick overview:
